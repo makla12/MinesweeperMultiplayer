@@ -1,12 +1,12 @@
 "use client";
-
 import Image from "next/image";
-import { HomePage } from "@/components/homePage";
+
+import { Join } from "@/components/join";
 
 export default function Home() {
   	return (
     	<>
-      		<HomePage />
+      		<Join />
     	</>
   	);
 }
