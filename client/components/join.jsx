@@ -1,4 +1,8 @@
 export function Join(props){
+    const socket = props.socket;
+    const join = () => {
+        socket.emit("join",Number(document.getElementById("roomCode").value));
+    }
     return(
         <>
             <div className="w-screen h-screen flex flex-col justify-center items-center gap-10">
@@ -6,10 +10,10 @@ export function Join(props){
 
                 <div>
                     <div className="text-3xl text-center">Code:</div>
-                    <input id="cols" min="1" type="number" className="text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
+                    <input id="roomCode" min="1" type="number" className="text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
                 </div>
                 
-                <button className="
+                <button onClick={join} className="
                     mt-20
                     w-96 h-24 
                     bg-blue-700 rounded-2xl 

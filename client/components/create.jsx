@@ -1,5 +1,6 @@
 import { useState, useEffect} from "react";
 export function Create(props){
+    const socket = props.socket;
     const [dif, setDif] = useState(1);
 
     const handleClick = (dif) => {
@@ -29,7 +30,7 @@ export function Create(props){
                 mines = Number(document.getElementById("mines").value);
                 break;
         }
-        console.log(cols,rows,mines);
+        socket.emit("create",cols,rows,mines);
     }
 
 
@@ -78,7 +79,7 @@ export function Create(props){
                     flex justify-center items-center 
                     text-2xl transition-all duration-500 
                     hover:cursor-pointer hover:bg-blue-900 hover:scale-[1.15]"
-				> Start game</button>
+				> Create game</button>
             </div>
         </>
     );
