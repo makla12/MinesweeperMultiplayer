@@ -30,7 +30,7 @@ export function Game(props){
         let newBoard = [];
         for(let i = 0;i < rows;i++){
             newBoard.push([]);
-            for(let j = 0;j < rows; j++){
+            for(let j = 0;j < cols; j++){
                 newBoard[i].push({cleared:false, flaged:false,minesAround:0})
             }
         }
