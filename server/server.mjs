@@ -1,6 +1,7 @@
 import { createServer } from 'http';
 import express from 'express';
 import { Server } from 'socket.io';
+import { console } from 'inspector';
 
 const app = express();
 
@@ -20,7 +21,7 @@ let games = [
         rows:20,
         cols:20,
         minesCount:100,
-        digCount:20 * 20 - 100,
+        digCounter:20 * 20 - 100,
         maxPlayers:5,
         players:1,
         gameStarted:false,
@@ -43,6 +44,7 @@ const generateRoomId = () => {
     }
     return random;
 }
+
 const getIndexFromRoom = (roomId) => {
     let index = -1;
     for(let i = 0;i < games.length;i++){
@@ -109,6 +111,48 @@ const generateBoard = (rows,cols,mines) => {
     return board;
 }
 
+const startGame = (gameIndex) => {
+    const rows = games[gameIndex].rows;
+    const cols = games[gameIndex].cols;
+    const mines = games[gameIndex].minesCount;
+    games[gameIndex].board = generateBoard(rows, cols, mines);
+    games[gameIndex].digCounter = rows * cols - mines;
+    io.to(games[gameIndex].room).emit("startGame");
+}
+
+const endGame = (gameIndex, code) => {
+    io.to(games[gameIndex].room).emit("endGame", code);
+}
+
+const dig = (gameIndex, x, y) => {
+    const room = games[gameIndex].room;
+    const value = games[gameIndex].board[x][y].minesAround;
+    if(games[gameIndex].board[x][y].cleared || games[gameIndex].board[x][y].flaged){
+        return 2;
+    }
+    if(value == -1){
+        return 1;
+    }
+    games[gameIndex].cleared = true;
+    games[gameIndex].digCounter -= 1;
+    io.to(room).emit("dig", x, y, value);
+    return 0;
+}
+
+const flag = (gameIndex, x, y) => {
+    const room = games[gameIndex].room;
+    const value = games[gameIndex].minesAround;
+    if(games[gameIndex].cleared){
+        return 2;
+    }
+    if(value == -1){
+        return 1;
+    }
+    games[gameIndex].flaged = true;
+    io.to(room).emit("flag", x, y);
+    return 0;
+}
+
 
 io.on("connect", (socket) => {
     socket.data.host = false;
@@ -144,11 +188,11 @@ io.on("connect", (socket) => {
             maxPlayers:5,
             players:1,
             gameStarted:false,
-            board:[[]]
+            board:[generateBoard(rows,cols,mines)]
         });
         socket.data.host = true;
         socket.join(roomId);
-        socket.emit("gameCreated",roomId);
+        socket.emit("gameCreated", roomId, cols, rows, mines);
     });
 
     socket.on("join",(roomId) => {
@@ -158,11 +202,21 @@ io.on("connect", (socket) => {
         games[index].players++;
         io.to(roomId).emit("playerJoined");
         socket.join(roomId);
-        socket.emit("gameJoined", roomId, games[index].players);
+        socket.emit("gameJoined", roomId, games[index].players, games[index].cols, games[index].rows, games[index].mines);
     });
 
     socket.on("startGame",(roomId)=>{
-        let board = [];
-        io.to(roomId).emit("startGame", board);
+        const gameIndex = getIndexFromRoom(roomId);
+        startGame(gameIndex);
+    });
+
+    socket.on("dig", (roomId, x, y)=>{
+        const gameIndex = getIndexFromRoom(roomId);
+        dig(gameIndex, x, y);
+    });
+
+    socket.on("flag", (roomId, x, y)=>{
+        const gameIndex = getIndexFromRoom(roomId);
+        flag(gameIndex, x, y);
     });
 });
