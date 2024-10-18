@@ -9,19 +9,19 @@ export function Create(props){
             case 0:
                 cols = 20;
                 rows = 20;
-                mines = 100;
+                mines = 25;
                 break;
 
             case 1:
                 cols = 20;
                 rows = 20;
-                mines = 200;
+                mines = 50;
                 break;
 
             case 2:
                 cols = 20;
                 rows = 20;
-                mines = 300;
+                mines = 100;
                 break;
 
             case 3:

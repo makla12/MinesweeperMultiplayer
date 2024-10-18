@@ -1,7 +1,6 @@
 import { createServer } from 'http';
 import express from 'express';
 import { Server } from 'socket.io';
-import { console } from 'inspector';
 
 const app = express();
 
@@ -61,24 +60,24 @@ const cellsAround = (board,x,y) => {
     const colums = board[0].length
     let cellsAr = [];
     if(x != 0){
-        cellsAr.push(board[x-1][y]);
-        if(y != 0) cellsAr.push(board[x-1][y-1]);
-        if(y != colums - 1) cellsAr.push(board[x-1][y+1]);
+        cellsAr.push([x-1, y]);
+        if(y != 0) cellsAr.push([x-1, y-1]);
+        if(y != colums - 1) cellsAr.push([x-1, y+1]);
     }
     if(x != rows - 1){
-        cellsAr.push(board[x+1][y]);
-        if(y != 0) cellsAr.push(board[x+1][y-1]);
-        if(y != colums - 1) cellsAr.push(board[x+1][y+1]);
+        cellsAr.push([x+1, y]);
+        if(y != 0) cellsAr.push([x+1, y-1]);
+        if(y != colums - 1) cellsAr.push([x+1, y+1]);
     }
-    if(y != 0) cellsAr.push(board[x][y-1]);
-    if(y != colums - 1) cellsAr.push(board[x][y+1]);
+    if(y != 0) cellsAr.push([x, y-1]);
+    if(y != colums - 1) cellsAr.push([x, y+1]);
     return cellsAr;
 }
 
 const cacculateMinesAround = (board,x,y) => {
     let sum = 0;
-    for(let i of cellsAround(board,x,y)){
-        if(i.minesAround == -1) sum++;
+    for(let value of cellsAround(board,x,y)){
+        if(board[value[0]][value[1]].minesAround == -1) sum++;
     }
     return sum;
 }
@@ -114,7 +113,7 @@ const generateBoard = (rows,cols,mines) => {
 const startGame = (gameIndex) => {
     const rows = games[gameIndex].rows;
     const cols = games[gameIndex].cols;
-    const mines = games[gameIndex].minesCount;
+    const mines = games[gameIndex].mines;
     games[gameIndex].board = generateBoard(rows, cols, mines);
     games[gameIndex].digCounter = rows * cols - mines;
     io.to(games[gameIndex].room).emit("startGame");
@@ -133,16 +132,21 @@ const dig = (gameIndex, x, y) => {
     if(value == -1){
         return 1;
     }
-    games[gameIndex].cleared = true;
+    games[gameIndex].board[x][y].cleared = true;
     games[gameIndex].digCounter -= 1;
     io.to(room).emit("dig", x, y, value);
+    if(value == 0){
+        for(let i of cellsAround(games[gameIndex].board,x, y)){
+            dig(gameIndex, i[0], i[1]);
+        }
+    }
     return 0;
 }
 
 const flag = (gameIndex, x, y) => {
     const room = games[gameIndex].room;
     const value = games[gameIndex].minesAround;
-    if(games[gameIndex].cleared){
+    if(games[gameIndex].board[x][y].cleared){
         return 2;
     }
     if(value == -1){
@@ -188,7 +192,8 @@ io.on("connect", (socket) => {
             maxPlayers:5,
             players:1,
             gameStarted:false,
-            board:[generateBoard(rows,cols,mines)]
+            board:[],
+            digCounter:0
         });
         socket.data.host = true;
         socket.join(roomId);
