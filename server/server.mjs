@@ -123,10 +123,25 @@ const endGame = (gameIndex, code) => {
     io.to(games[gameIndex].room).emit("endGame", code);
 }
 
+const flagsAround = (board, x, y) => {
+    const flags = cellsAround(board, x, y).filter(value => board[value[0]][value[1]].flaged);
+    return flags.length;
+}
+
+const unClearedClelsAround = (board, x, y) => {
+    const cells = cellsAround(board, x, y).filter(value => !board[value[0]][value[1]].cleared);
+    return cells.length;
+}
+
 const dig = (gameIndex, x, y) => {
     const room = games[gameIndex].room;
     const value = games[gameIndex].board[x][y].minesAround;
-    if(games[gameIndex].board[x][y].cleared || games[gameIndex].board[x][y].flaged){
+    if(games[gameIndex].board[x][y].cleared){
+        console.log(flagsAround(games[gameIndex].board, x, y));
+        console.log(unClearedClelsAround(games[gameIndex].board, x, y));
+        return 2;
+    }
+    if(games[gameIndex].board[x][y].flaged){
         return 2;
     }
     if(value == -1){
@@ -152,7 +167,7 @@ const flag = (gameIndex, x, y) => {
     if(value == -1){
         return 1;
     }
-    games[gameIndex].flaged = true;
+    games[gameIndex].board[x][y].flaged = true;
     io.to(room).emit("flag", x, y);
     return 0;
 }

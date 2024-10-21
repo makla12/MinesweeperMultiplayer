@@ -60,7 +60,7 @@ export function Game(props){
                         {value1.map((value2,index2)=>(
                             <div key={`${index1} ${index2}`} onClick={()=>{ props.socket.emit("dig", props.roomId, index1, index2) }} 
                                 onContextMenu={(e)=>{e.preventDefault(); props.socket.emit("flag", props.roomId, index1, index2) }}
-                                className="w-10 h-10 border-[#3a4650] border-[1px] flex items-center justify-center hover:cursor-default"
+                                className="w-10 h-10 border-[#3a4650] border-[1px] flex items-center justify-center select-none hover:cursor-default"
                             >
                                 <div className={
                                     `flex items-center justify-center z-10 
@@ -70,7 +70,7 @@ export function Game(props){
                                 >
                                     {value2.flaged ? 
                                         <div className="w-[80%] h-[80%]">
-                                            <Image src={flagImg} alt="Flag"/>
+                                            <Image src={flagImg} alt="Flag" draggable={false} />
                                         </div> 
                                     : ""}
                                 </div>
