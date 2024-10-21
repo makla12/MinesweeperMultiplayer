@@ -133,12 +133,27 @@ const unClearedClelsAround = (board, x, y) => {
     return cells.length;
 }
 
-const dig = (gameIndex, x, y) => {
+const dig = (gameIndex, x, y, manual) => {
     const room = games[gameIndex].room;
     const value = games[gameIndex].board[x][y].minesAround;
     if(games[gameIndex].board[x][y].cleared){
+        if(!manual){
+            return 2;
+        }
         console.log(flagsAround(games[gameIndex].board, x, y));
         console.log(unClearedClelsAround(games[gameIndex].board, x, y));
+
+        if(flagsAround(games[gameIndex].board, x, y) == games[gameIndex].board[x][y].minesAround){
+            for(let i of cellsAround(games[gameIndex].board,x, y)){
+                dig(gameIndex, i[0], i[1], false);
+            }
+        }
+
+        if(unClearedClelsAround(games[gameIndex].board, x, y) == games[gameIndex].board[x][y].minesAround){
+            for(let i of cellsAround(games[gameIndex].board,x, y)){
+                flag(gameIndex, i[0], i[1], false);
+            }
+        }
         return 2;
     }
     if(games[gameIndex].board[x][y].flaged){
@@ -152,22 +167,21 @@ const dig = (gameIndex, x, y) => {
     io.to(room).emit("dig", x, y, value);
     if(value == 0){
         for(let i of cellsAround(games[gameIndex].board,x, y)){
-            dig(gameIndex, i[0], i[1]);
+            dig(gameIndex, i[0], i[1], false);
         }
     }
     return 0;
 }
 
-const flag = (gameIndex, x, y) => {
+const flag = (gameIndex, x, y, manual) => {
     const room = games[gameIndex].room;
-    const value = games[gameIndex].minesAround;
     if(games[gameIndex].board[x][y].cleared){
         return 2;
     }
-    if(value == -1){
+    if(!manual && games[gameIndex].board[x][y].flaged){
         return 1;
     }
-    games[gameIndex].board[x][y].flaged = true;
+    games[gameIndex].board[x][y].flaged = !games[gameIndex].board[x][y].flaged;
     io.to(room).emit("flag", x, y);
     return 0;
 }
@@ -232,11 +246,11 @@ io.on("connect", (socket) => {
 
     socket.on("dig", (roomId, x, y)=>{
         const gameIndex = getIndexFromRoom(roomId);
-        dig(gameIndex, x, y);
+        dig(gameIndex, x, y, true);
     });
 
     socket.on("flag", (roomId, x, y)=>{
         const gameIndex = getIndexFromRoom(roomId);
-        flag(gameIndex, x, y);
+        flag(gameIndex, x, y, true);
     });
 });
