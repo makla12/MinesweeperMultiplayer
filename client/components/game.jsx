@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import flagImg from "@/public/flag.png"
+import { GameNav } from "./gameNav";
 
 export function Game(props){    
     const [board, setBoard] = useState([]);
     const [change, setChange] = useState(false);
+    const [mines, setMines] = useState(0);
+    useEffect(()=>{
+        setMines(props.mines);
+    },[props.mines])
 
     const dig = (x, y, value) => {
-        console.log(value);
         if(board[x][y].flaged || board[x][y].cleared){
             return 0;
         }
@@ -18,12 +22,23 @@ export function Game(props){
         setChange(!change); 
     }
 
-    const flag = (x,y) => {
-        if(board[x][y].cleared){
-            return 0;
-        }
+    const flag = (flags) => {
+        console.log(flags);
         let newBoard = Array.from(board);
-        newBoard[x][y].flaged = !newBoard[x][y].flaged;
+        let flagChange = 0;
+        for(let i = 0; i < flags.length; i++){
+            if(board[flags[i][0]][flags[i][1]].cleared){
+                continue;
+            }
+            if(newBoard[flags[i][0]][flags[i][1]].flaged){
+                flagChange--;
+            }
+            else{
+                flagChange++;
+            }
+            newBoard[flags[i][0]][flags[i][1]].flaged = !newBoard[flags[i][0]][flags[i][1]].flaged;
+        }
+        setMines(mines - flagChange);
         setBoard(newBoard);
         setChange(!change); 
     }
@@ -36,7 +51,6 @@ export function Game(props){
                 newBoard[i].push({cleared:false, flaged:false,minesAround:0})
             }
         }
-        console.log(props.rows,props.cols);
         setBoard(newBoard);
         setChange(!change);
     },[props.cols,props.rows]);
@@ -53,7 +67,8 @@ export function Game(props){
     
     return(
         <>
-        <div className="w-screen h-screen flex justify-center items-center">
+        <GameNav mines={mines} socket={props.socket} />
+        <div className="min-w-screen min-h-screen w-fit h-fit flex justify-center items-center p-24 mx-auto">
             <div className="flex flex-col">
                 {board.map((value1,index1)=>(
                     <div key={index1} className="flex">

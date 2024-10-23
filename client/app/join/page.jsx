@@ -7,7 +7,7 @@ export default function Home() {
 	const [socket,setSocket] = useState(undefined);
 
 	useEffect(()=>{
-		const manager = new Manager("127.0.0.1:8080");
+		const manager = new Manager(window.location.hostname + ":8080");
 		setSocket(manager.socket("/"));
 	},[]);
 

@@ -41,7 +41,7 @@ export default function CreateSite(props) {
             (gameStart == 1 ? 
             <WaitingRoom  socket={props.socket} roomId={roomId} playerCount={playerCount} host={true} /> 
             : 
-            <Game socket={props.socket} roomId={roomId} rows={rows} cols={cols} />) }
+            <Game socket={props.socket} roomId={roomId} rows={rows} cols={cols} mines={mines} />) }
     	</>
   	);
 }

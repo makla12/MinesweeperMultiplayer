@@ -133,6 +133,10 @@ const unClearedClelsAround = (board, x, y) => {
     return cells.length;
 }
 
+const flagAround = (gameIndex,flags,x,y) => {
+
+}
+
 const dig = (gameIndex, x, y, manual) => {
     const room = games[gameIndex].room;
     const value = games[gameIndex].board[x][y].minesAround;
@@ -140,8 +144,6 @@ const dig = (gameIndex, x, y, manual) => {
         if(!manual){
             return 2;
         }
-        console.log(flagsAround(games[gameIndex].board, x, y));
-        console.log(unClearedClelsAround(games[gameIndex].board, x, y));
 
         if(flagsAround(games[gameIndex].board, x, y) == games[gameIndex].board[x][y].minesAround){
             for(let i of cellsAround(games[gameIndex].board,x, y)){
@@ -150,9 +152,18 @@ const dig = (gameIndex, x, y, manual) => {
         }
 
         if(unClearedClelsAround(games[gameIndex].board, x, y) == games[gameIndex].board[x][y].minesAround){
+            let flags = [];
             for(let i of cellsAround(games[gameIndex].board,x, y)){
-                flag(gameIndex, i[0], i[1], false);
+                if(games[gameIndex].board[i[0]][i[1]].cleared){
+                    continue;
+                }
+                if(games[gameIndex].board[i[0]][i[1]].flaged){
+                    continue;
+                }
+                games[gameIndex].board[i[0]][i[1]].flaged = !games[gameIndex].board[i[0]][i[1]].flaged;
+                flags.push([i[0], i[1]]);
             }
+            io.to(room).emit("flag", flags);
         }
         return 2;
     }
@@ -182,7 +193,7 @@ const flag = (gameIndex, x, y, manual) => {
         return 1;
     }
     games[gameIndex].board[x][y].flaged = !games[gameIndex].board[x][y].flaged;
-    io.to(room).emit("flag", x, y);
+    io.to(room).emit("flag", [[x, y]]);
     return 0;
 }
 

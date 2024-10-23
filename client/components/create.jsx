@@ -7,19 +7,19 @@ export function Create(props){
         let cols, rows, mines;
         switch(dif){
             case 0:
-                cols = 20;
+                cols = 30;
                 rows = 20;
                 mines = 25;
                 break;
 
             case 1:
-                cols = 20;
+                cols = 30;
                 rows = 20;
                 mines = 50;
                 break;
 
             case 2:
-                cols = 20;
+                cols = 30;
                 rows = 20;
                 mines = 100;
                 break;
