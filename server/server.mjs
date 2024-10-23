@@ -1,15 +1,12 @@
 import { createServer } from 'http';
-import express from 'express';
 import { Server } from 'socket.io';
 
-const app = express();
-
-const httpServer = createServer(app);
+const httpServer = createServer();
 httpServer.listen(8080);
 
 const io = new Server(httpServer,{
     cors: {
-        origin: "http://localhost:3000",
+        origin: "*",
         methods: ["GET", "POST"]
     }
 });
@@ -133,21 +130,35 @@ const unClearedClelsAround = (board, x, y) => {
     return cells.length;
 }
 
-const flagAround = (gameIndex,flags,x,y) => {
-
+const cellsToClear = (gameIndex, x, y) => {
+    let cells = [];
+    const board = games[gameIndex].board;
+    const value = games[gameIndex].board[x][y].minesAround;
+    if(board[x][y].cleared || board[x][y].flaged){
+        return [];
+    }
+    games[gameIndex].board[x][y].cleared = true;
+    games[gameIndex].digCounter -= 1;
+    cells.push([x, y, value]);
+    if(value == 0){
+        for(let i of cellsAround(board,x, y)){
+            cells = cells.concat(cellsToClear(gameIndex, i[0], i[1]));
+        }
+    }
+    return cells;        
 }
 
-const dig = (gameIndex, x, y, manual) => {
+const dig = (gameIndex, x, y) => {
     const room = games[gameIndex].room;
     const value = games[gameIndex].board[x][y].minesAround;
     if(games[gameIndex].board[x][y].cleared){
-        if(!manual){
-            return 2;
-        }
-
         if(flagsAround(games[gameIndex].board, x, y) == games[gameIndex].board[x][y].minesAround){
+            let cells = [];
             for(let i of cellsAround(games[gameIndex].board,x, y)){
-                dig(gameIndex, i[0], i[1], false);
+                cells = cells.concat(cellsToClear(gameIndex, i[0], i[1]));
+            }
+            if(cells.length > 0){
+                io.to(room).emit("dig", cells);
             }
         }
 
@@ -173,14 +184,8 @@ const dig = (gameIndex, x, y, manual) => {
     if(value == -1){
         return 1;
     }
-    games[gameIndex].board[x][y].cleared = true;
-    games[gameIndex].digCounter -= 1;
-    io.to(room).emit("dig", x, y, value);
-    if(value == 0){
-        for(let i of cellsAround(games[gameIndex].board,x, y)){
-            dig(gameIndex, i[0], i[1], false);
-        }
-    }
+    let cells = cellsToClear(gameIndex, x, y);
+    io.to(room).emit("dig", cells);
     return 0;
 }
 
@@ -257,7 +262,7 @@ io.on("connect", (socket) => {
 
     socket.on("dig", (roomId, x, y)=>{
         const gameIndex = getIndexFromRoom(roomId);
-        dig(gameIndex, x, y, true);
+        dig(gameIndex, x, y);
     });
 
     socket.on("flag", (roomId, x, y)=>{

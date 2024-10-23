@@ -36,7 +36,7 @@ export function Create(props){
 
     return(
         <>
-            <div className="w-screen h-screen flex flex-col justify-center items-center gap-10">
+            <div className="min-w-fit w-screen h-screen flex flex-col justify-center items-center gap-10">
                 <div className="text-5xl">Select dificulty</div>
                 <div className="flex gap-10">
                     {

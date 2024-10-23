@@ -37,7 +37,7 @@ export function GameNav(props){
     },[time])
 
     return(
-        <div className="fixed w-screen h-20 bg-black flex justify-evenly items-center text-xl z-20">
+        <div className="fixed top-0 left-0 w-screen h-20 bg-black flex justify-evenly items-center text-xl z-20 select-none">
             <div></div>
             <div>{props.mines}</div>
             <div>{formatTime(time)}</div>

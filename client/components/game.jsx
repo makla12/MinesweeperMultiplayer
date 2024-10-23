@@ -11,15 +11,18 @@ export function Game(props){
         setMines(props.mines);
     },[props.mines])
 
-    const dig = (x, y, value) => {
-        if(board[x][y].flaged || board[x][y].cleared){
-            return 0;
-        }
+    const dig = (digs) => {
         let newBoard = Array.from(board);
-        newBoard[x][y].minesAround = value;
-        newBoard[x][y].cleared = true;
+        for(let i = 0; i< digs.length; i++){
+            if(board[digs[i][0]][digs[i][1]].flaged || board[digs[i][0]][digs[i][1]].cleared){
+                return 0;
+            }
+            
+            newBoard[digs[i][0]][digs[i][1]].minesAround = digs[i][2];
+            newBoard[digs[i][0]][digs[i][1]].cleared = true;
+        }
         setBoard(newBoard);
-        setChange(!change); 
+        setChange(!change);
     }
 
     const flag = (flags) => {

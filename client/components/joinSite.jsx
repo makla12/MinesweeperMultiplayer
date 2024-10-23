@@ -43,7 +43,7 @@ export default function JoinSite(props) {
             (gameStart == 1 ? 
             <WaitingRoom  socket={props.socket} roomId={roomId} playerCount={playerCount} host={false} />
             : 
-            <Game socket={props.socket} roomId={roomId} rows={rows} cols={cols} />) }
+            <Game socket={props.socket} roomId={roomId} rows={rows} cols={cols} mines={mines} />) }
     	</>
   	);
 }
