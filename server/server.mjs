@@ -11,19 +11,7 @@ const io = new Server(httpServer,{
     }
 });
 
-let games = [
-    {
-        room:444,
-        rows:20,
-        cols:20,
-        minesCount:100,
-        digCounter:20 * 20 - 100,
-        maxPlayers:5,
-        players:1,
-        gameStarted:false,
-        board:[]
-    },
-];
+let games = [];
 
 const generateRoomId = () => {
     let random;
@@ -113,11 +101,8 @@ const startGame = (gameIndex) => {
     const mines = games[gameIndex].mines;
     games[gameIndex].board = generateBoard(rows, cols, mines);
     games[gameIndex].digCounter = rows * cols - mines;
+    games[gameIndex].gameEnd = false;
     io.to(games[gameIndex].room).emit("startGame");
-}
-
-const endGame = (gameIndex, code) => {
-    io.to(games[gameIndex].room).emit("endGame", code);
 }
 
 const flagsAround = (board, x, y) => {
@@ -139,6 +124,11 @@ const cellsToClear = (gameIndex, x, y) => {
     }
     games[gameIndex].board[x][y].cleared = true;
     games[gameIndex].digCounter -= 1;
+    if(value == -1){
+        games[gameIndex].gameEnd = true;
+        io.to(games[gameIndex].room).emit("endGame",false);
+        return [];
+    }
     cells.push([x, y, value]);
     if(value == 0){
         for(let i of cellsAround(board,x, y)){
@@ -149,8 +139,9 @@ const cellsToClear = (gameIndex, x, y) => {
 }
 
 const dig = (gameIndex, x, y) => {
+    if(games[gameIndex].gameEnd || games[gameIndex].board[x][y].flaged) return 0;
+
     const room = games[gameIndex].room;
-    const value = games[gameIndex].board[x][y].minesAround;
     if(games[gameIndex].board[x][y].cleared){
         if(flagsAround(games[gameIndex].board, x, y) == games[gameIndex].board[x][y].minesAround){
             let cells = [];
@@ -159,6 +150,10 @@ const dig = (gameIndex, x, y) => {
             }
             if(cells.length > 0){
                 io.to(room).emit("dig", cells);
+                if(games[gameIndex].digCounter == 0){
+                    games[gameIndex].gameEnd = true;
+                    io.to(room).emit("endGame", true);
+                }
             }
         }
 
@@ -176,17 +171,14 @@ const dig = (gameIndex, x, y) => {
             }
             io.to(room).emit("flag", flags);
         }
-        return 2;
+        return 0;
     }
-    if(games[gameIndex].board[x][y].flaged){
-        return 2;
-    }
-    if(value == -1){
-        return 1;
-    }
+    
     let cells = cellsToClear(gameIndex, x, y);
     io.to(room).emit("dig", cells);
-    return 0;
+    if(games[gameIndex].digCounter == 0){
+        io.to(room).emit("endGame", true);
+    }
 }
 
 const flag = (gameIndex, x, y, manual) => {
@@ -216,6 +208,8 @@ io.on("connect", (socket) => {
             const roomId = Array.from(socket.rooms)[1];
             const index = getIndexFromRoom(roomId);
             if(index == -1) return 0;
+            io.to(roomId).emit("hostLeft");
+            io.in(roomId).socketsLeave(roomId);
             games.splice(index,1);
         }
         else{
@@ -228,6 +222,7 @@ io.on("connect", (socket) => {
     });
 
     socket.on("create",(cols,rows,mines)=>{
+        if(cols * rows < mines) return 0;
         let roomId = generateRoomId();
         games.push({
             room:roomId,
@@ -238,7 +233,8 @@ io.on("connect", (socket) => {
             players:1,
             gameStarted:false,
             board:[],
-            digCounter:0
+            digCounter:0,
+            gameEnd:false,
         });
         socket.data.host = true;
         socket.join(roomId);

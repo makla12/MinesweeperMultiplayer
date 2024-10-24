@@ -60,15 +60,15 @@ export function Create(props){
                     <div className="flex flex-col gap-5">
                         <div>
                             <div className="text-3xl text-center">Colums:</div>
-                            <input id="cols" min="1" type="number" className="text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
+                            <input id="cols" min="1" type="number" className="bg-black dark:bg-white text-white dark:text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg " />
                         </div>
                         <div>
                             <div className="text-3xl text-center">Rows:</div>
-                            <input id="rows" min="1" type="number" className="text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
+                            <input id="rows" min="1" type="number" className="bg-black dark:bg-white text-white dark:text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
                         </div>
                         <div>
                             <div className="text-3xl text-center">Mines:</div>
-                            <input id="mines" min="1" type="number" className="text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
+                            <input id="mines" min="1" type="number" className="bg-black dark:bg-white text-white dark:text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
                         </div>    
                     </div>
                 ) : ""}

@@ -2,14 +2,20 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import flagImg from "@/public/flag.png"
 import { GameNav } from "./gameNav";
+import { EndScrean } from "./endScrean";
 
 export function Game(props){    
     const [board, setBoard] = useState([]);
     const [change, setChange] = useState(false);
     const [mines, setMines] = useState(0);
-    useEffect(()=>{
-        setMines(props.mines);
-    },[props.mines])
+    const [gameState, setGameState] = useState(0);
+    const [gameWin, setGameWin] = useState(false);
+
+    const handleGameReset = () => {
+        setGameState(0);
+        setGameWin(false);
+        props.socket.emit("startGame",props.roomId);
+    }
 
     const dig = (digs) => {
         let newBoard = Array.from(board);
@@ -26,7 +32,6 @@ export function Game(props){
     }
 
     const flag = (flags) => {
-        console.log(flags);
         let newBoard = Array.from(board);
         let flagChange = 0;
         for(let i = 0; i < flags.length; i++){
@@ -47,6 +52,23 @@ export function Game(props){
     }
     
     useEffect(()=>{
+        const handleGameEnd = (value) => {
+            setGameState(1);
+            setGameWin(value);
+        }
+        props.socket.on("endGame", handleGameEnd);
+
+        return () => {
+            props.socket.off("endGame", handleGameEnd);
+        }
+    },[]);
+
+    useEffect(()=>{
+        setMines(props.mines);
+    },[props.mines, props.gameReset])
+
+    useEffect(()=>{
+        setGameState(0);
         let newBoard = [];
         for(let i = 0;i < props.rows;i++){
             newBoard.push([]);
@@ -56,7 +78,7 @@ export function Game(props){
         }
         setBoard(newBoard);
         setChange(!change);
-    },[props.cols,props.rows]);
+    },[props.cols,props.rows,props.gameReset]);
         
     useEffect(()=>{
         props.socket.on("dig",dig);
@@ -99,6 +121,7 @@ export function Game(props){
                 ))}
             </div>
         </div> 
+        {gameState == 1 ? <EndScrean win={gameWin} handleGameReset={handleGameReset} /> : ""}
         </>
     )
 }

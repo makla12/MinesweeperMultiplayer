@@ -9,6 +9,7 @@ export default function JoinSite(props) {
     const [gameStart,setGameStart] = useState(0);
     const [roomId,setRoomId] = useState(0);
     const [playerCount,setPlayerCount] = useState(1);
+    const [gameReset, setGameReset] = useState(false);
     const [rows,setRows] = useState(20);
     const [cols,setCols] = useState(20);
     const [mines,setMines] = useState(100);
@@ -31,8 +32,13 @@ export default function JoinSite(props) {
         setPlayerCount(playerCount-1);
     });
     
-    socket.on("startGame",(board)=>{
+    socket.on("startGame",()=>{
         setGameStart(2);
+        setGameReset(!gameReset);
+    });
+
+    socket.on("hostLeft",()=>{
+        setGameStart(0);
     });
 
   	return (
@@ -43,7 +49,7 @@ export default function JoinSite(props) {
             (gameStart == 1 ? 
             <WaitingRoom  socket={props.socket} roomId={roomId} playerCount={playerCount} host={false} />
             : 
-            <Game socket={props.socket} roomId={roomId} rows={rows} cols={cols} mines={mines} />) }
+            <Game socket={props.socket} gameReset={gameReset} roomId={roomId} rows={rows} cols={cols} mines={mines} />) }
     	</>
   	);
 }

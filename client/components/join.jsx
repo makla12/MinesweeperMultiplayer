@@ -10,7 +10,7 @@ export function Join(props){
 
                 <div>
                     <div className="text-3xl text-center">Code:</div>
-                    <input id="roomCode" min="1" type="number" className="text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
+                    <input id="roomCode" min="1" type="number" className="bg-black dark:bg-white text-white dark:text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
                 </div>
                 
                 <button onClick={join} className="
