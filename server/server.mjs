@@ -197,10 +197,8 @@ const flag = (gameIndex, x, y, manual) => {
 
 io.on("connect", (socket) => {
     socket.data.host = false;
-    console.log("connected");
 
     socket.on("disconnecting",()=>{
-        console.log("dc");
         if(socket.rooms.size == 1){
             return 0;
         }
