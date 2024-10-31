@@ -14,30 +14,51 @@ export default function CreateSite(props) {
     const [mines,setMines] = useState(100);
     const socket = props.socket;
 
-    socket.on("gameCreated",(roomId, cols, rows, mines)=>{
-        setGameStart(1);
-        setCols(cols);
-        setRows(rows);
-        setMines(mines);
-        setRoomId(roomId);
-    });
+    useEffect(()=>{
+        socket.on("gameCreated",(roomId, cols, rows, mines)=>{
+            setGameStart(1);
+            setCols(cols);
+            setRows(rows);
+            setMines(mines);
+            setRoomId(roomId);
+        });
 
-    socket.on("playerJoined",()=>{
-        setPlayerCount(playerCount+1);
-    });
+        socket.on("hostLeft",()=>{
+            setGameStart(0);
+        });
 
-    socket.on("playerDisconnected",()=>{
-        setPlayerCount(playerCount-1);
-    });
+        return ()=>{
+            socket.off("gameCreated")
+            socket.off("hostLeft")
+        }
+    }, [])
     
-    socket.on("startGame",()=>{
-        setGameStart(2);
-        setGameReset(!gameReset);
-    });
+    useEffect(()=>{
+        socket.on("playerJoined",()=>{
+            setPlayerCount(playerCount+1);
+        });
+    
+        socket.on("playerDisconnected",()=>{
+            setPlayerCount(playerCount-1);
+        });
 
-    socket.on("hostLeft",()=>{
-        setGameStart(0);
-    });
+        return ()=>{
+            socket.off("playerJoined")
+            socket.off("playerDisconnected")
+        }
+    },[playerCount])
+    
+    useEffect(()=>{
+        socket.on("startGame",()=>{
+            setGameStart(2);
+            setGameReset(!gameReset);
+        });
+
+        socket.off("startGame");
+    },[gameReset])
+    
+
+    
 
   	return (
     	<>
