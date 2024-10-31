@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { GameNav } from "./gameNav";
 import { EndScrean } from "./endScrean";
-import { signal, useSignal, useSignalEffect } from "@preact/signals-react";
+import { signal } from "@preact/signals-react";
 import { Cell } from "./cell";
 
 export function Game(props){    
@@ -21,15 +21,16 @@ export function Game(props){
             if(board[digs[i][0]][digs[i][1]].value.flaged || board[digs[i][0]][digs[i][1]].value.cleared){
                 return 0;
             }
-            
-            board[digs[i][0]][digs[i][1]].value.minesAround = digs[i][2];
-            board[digs[i][0]][digs[i][1]].value.cleared = true;
+            const sig = board[digs[i][0]][digs[i][1]];
+            sig.value = {...sig.value, minesAround:digs[i][2]};
+            sig.value = {...sig.value, cleared:true};
         }
     }
 
     const flag = (flags) => {
         for(let i = 0; i < flags.length; i++){
-            board[flags[i][0]][flags[i][1]].value.flaged = !board[flags[i][0]][flags[i][1]].value.flaged;
+            const sig = board[flags[i][0]][flags[i][1]];
+            sig.value = {...sig.value, flaged:!sig.value.flaged};
         }
     }
     
