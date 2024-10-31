@@ -69,7 +69,7 @@ export function Game(props){
         <>
         
         <GameNav socket={props.socket} minesStart={props.mines} gameReset={props.gameReset} board={board} />
-        <div className="min-w-screen min-h-screen w-fit h-fit flex justify-center items-center p-24 mx-auto">
+        <div className="min-w-screen min-h-screen w-fit h-fit flex justify-center items-center p-24 mx-auto touch-manipulation">
             <div className="flex flex-col">
                 {board.map((row,index1)=>(
                     <div key={index1} className="flex">
