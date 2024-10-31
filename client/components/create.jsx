@@ -7,21 +7,21 @@ export function Create(props){
         let cols, rows, mines;
         switch(dif){
             case 0:
-                cols = 20;
+                cols = 30;
                 rows = 20;
-                mines = 100;
+                mines = 25;
                 break;
 
             case 1:
-                cols = 20;
+                cols = 30;
                 rows = 20;
-                mines = 200;
+                mines = 50;
                 break;
 
             case 2:
-                cols = 20;
+                cols = 30;
                 rows = 20;
-                mines = 300;
+                mines = 100;
                 break;
 
             case 3:
@@ -36,7 +36,7 @@ export function Create(props){
 
     return(
         <>
-            <div className="w-screen h-screen flex flex-col justify-center items-center gap-10">
+            <div className="min-w-fit w-screen h-screen flex flex-col justify-center items-center gap-10">
                 <div className="text-5xl">Select dificulty</div>
                 <div className="flex gap-10">
                     {
@@ -60,15 +60,15 @@ export function Create(props){
                     <div className="flex flex-col gap-5">
                         <div>
                             <div className="text-3xl text-center">Colums:</div>
-                            <input id="cols" min="1" type="number" className="text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
+                            <input id="cols" min="1" type="number" className="bg-black dark:bg-white text-white dark:text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg " />
                         </div>
                         <div>
                             <div className="text-3xl text-center">Rows:</div>
-                            <input id="rows" min="1" type="number" className="text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
+                            <input id="rows" min="1" type="number" className="bg-black dark:bg-white text-white dark:text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
                         </div>
                         <div>
                             <div className="text-3xl text-center">Mines:</div>
-                            <input id="mines" min="1" type="number" className="text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
+                            <input id="mines" min="1" type="number" className="bg-black dark:bg-white text-white dark:text-black p-2 rounded-lg shadow-blue-500 active:shadow-lg" />
                         </div>    
                     </div>
                 ) : ""}

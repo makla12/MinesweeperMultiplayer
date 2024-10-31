@@ -4,7 +4,7 @@ export function WaitingRoom(props){
     const socket = props.socket;
 
     return(
-        <div className="w-screen h-screen flex flex-col justify-center items-center gap-32">
+        <div className="min-w-fit w-screen h-screen flex flex-col justify-center items-center gap-32">
             <div className="text-4xl">Number of players: {props.playerCount}</div>
             <div className="flex justify-center items-center gap-5">
                 <div className="text-4xl">Room id: {props.roomId}</div>

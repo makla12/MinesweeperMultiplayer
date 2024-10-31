@@ -8,24 +8,57 @@ export default function CreateSite(props) {
 	const [gameStart,setGameStart] = useState(0);
     const [roomId,setRoomId] = useState(0);
     const [playerCount,setPlayerCount] = useState(1);
+    const [gameReset, setGameReset] = useState(false);
+    const [rows,setRows] = useState(20);
+    const [cols,setCols] = useState(20);
+    const [mines,setMines] = useState(100);
     const socket = props.socket;
 
-    socket.on("gameCreated",(roomId)=>{
-        setGameStart(1);
-        setRoomId(roomId);
-    });
+    useEffect(()=>{
+        socket.on("gameCreated",(roomId, cols, rows, mines)=>{
+            setGameStart(1);
+            setCols(cols);
+            setRows(rows);
+            setMines(mines);
+            setRoomId(roomId);
+        });
 
-    socket.on("playerJoined",()=>{
-        setPlayerCount(playerCount+1);
-    });
+        socket.on("hostLeft",()=>{
+            setGameStart(0);
+        });
 
-    socket.on("playerDisconnected",()=>{
-        setPlayerCount(playerCount-1);
-    });
+        return ()=>{
+            socket.off("gameCreated")
+            socket.off("hostLeft")
+        }
+    }, [])
     
-    socket.on("startGame",(board)=>{
-        setGameStart(2);
-    });
+    useEffect(()=>{
+        socket.on("playerJoined",()=>{
+            setPlayerCount(playerCount+1);
+        });
+    
+        socket.on("playerDisconnected",()=>{
+            setPlayerCount(playerCount-1);
+        });
+
+        return ()=>{
+            socket.off("playerJoined")
+            socket.off("playerDisconnected")
+        }
+    },[playerCount])
+    
+    useEffect(()=>{
+        socket.on("startGame",()=>{
+            setGameStart(2);
+            setGameReset(!gameReset);
+        });
+
+        socket.off("startGame");
+    },[gameReset])
+    
+
+    
 
   	return (
     	<>
@@ -35,7 +68,7 @@ export default function CreateSite(props) {
             (gameStart == 1 ? 
             <WaitingRoom  socket={props.socket} roomId={roomId} playerCount={playerCount} host={true} /> 
             : 
-            <Game socket={props.socket}/>) }
+            <Game socket={props.socket} gameReset={gameReset} roomId={roomId} rows={rows} cols={cols} mines={mines} />) }
     	</>
   	);
 }
