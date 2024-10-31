@@ -54,7 +54,9 @@ export default function CreateSite(props) {
             setGameReset(!gameReset);
         });
 
-        socket.off("startGame");
+        return()=>{
+            socket.off("startGame");
+        }
     },[gameReset])
     
 
