@@ -9,9 +9,9 @@ export default function CreateSite(props) {
     const [roomId,setRoomId] = useState(0);
     const [playerCount,setPlayerCount] = useState(1);
     const [gameReset, setGameReset] = useState(false);
-    const [rows,setRows] = useState(20);
-    const [cols,setCols] = useState(20);
-    const [mines,setMines] = useState(100);
+    const [rows,setRows] = useState(0);
+    const [cols,setCols] = useState(0);
+    const [mines,setMines] = useState(0);
     const socket = props.socket;
 
     useEffect(()=>{
@@ -54,7 +54,7 @@ export default function CreateSite(props) {
             setGameReset(!gameReset);
         });
 
-        return()=>{
+        return () => {
             socket.off("startGame");
         }
     },[gameReset])
