@@ -5,13 +5,13 @@ import WaitingRoom from "@/components/WaitingRoom";
 import Game from "@/components/Game";
 
 export default function JoinSite(props) {
-    const [gameStart,setGameStart] = useState(0);
-    const [roomId,setRoomId] = useState(0);
-    const [playerCount,setPlayerCount] = useState(1);
+    const [gameStart, setGameStart] = useState(0);
+    const [roomId, setRoomId] = useState(0);
+    const [playerCount, setPlayerCount] = useState(1);
     const [gameReset, setGameReset] = useState(false);
-    const [rows,setRows] = useState(20);
-    const [cols,setCols] = useState(20);
-    const [mines,setMines] = useState(100);
+    const [rows, setRows] = useState(20);
+    const [cols, setCols] = useState(20);
+    const [mines, setMines] = useState(100);
     
     const socket = props.socket;
     socket.on("gameJoined",(roomId, playerCount, cols, rows, mines)=>{
