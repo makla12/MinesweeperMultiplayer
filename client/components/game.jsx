@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { GameNav } from "./gameNav";
-import { EndScrean } from "./endScrean";
 import { signal } from "@preact/signals-react";
-import { Cell } from "./cell";
+import GameNav from "./GameNav";
+import EndScrean from "./EndScrean";
+import Cell from "./Cell";
 
-export function Game(props){    
+export default function Game(props){    
     const [board, setBoard] = useState([]);
     const [change, setChange] = useState(false);
     const [gameState, setGameState] = useState(0);

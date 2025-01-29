@@ -1,6 +1,4 @@
-import { useState, useEffect} from "react";
-
-export function WaitingRoom(props){
+export default function WaitingRoom(props){
     const socket = props.socket;
 
     return(
@@ -14,6 +12,7 @@ export function WaitingRoom(props){
                     rounded-lg p-2 text-xl hover:bg-blue-900"
                 >Copy</button>
             </div>
+
             {props.host ? 
             <button onClick={()=>{socket.emit("startGame",props.roomId)}} className="
                 w-96 h-24 

@@ -1,9 +1,8 @@
 "use client";
 import { useState, useEffect} from "react";
-
-import { Join } from "./join";
-import { WaitingRoom } from "./waitingRoom";
-import { Game } from "./game";
+import JoinGame from "@/components/JoinGame";
+import WaitingRoom from "@/components/WaitingRoom";
+import Game from "@/components/Game";
 
 export default function JoinSite(props) {
     const [gameStart,setGameStart] = useState(0);
@@ -41,15 +40,15 @@ export default function JoinSite(props) {
         setGameStart(0);
     });
 
-  	return (
-    	<>
-            {gameStart == 0 ? 
-            <Join socket={props.socket} />
-            : 
-            (gameStart == 1 ? 
-            <WaitingRoom  socket={props.socket} roomId={roomId} playerCount={playerCount} host={false} />
-            : 
-            <Game socket={props.socket} gameReset={gameReset} roomId={roomId} rows={rows} cols={cols} mines={mines} />) }
-    	</>
-  	);
+    return (
+    <>
+        {gameStart == 0 ? 
+        <JoinGame socket={props.socket} />
+        : 
+        (gameStart == 1 ? 
+        <WaitingRoom  socket={props.socket} roomId={roomId} playerCount={playerCount} host={false} />
+        : 
+        <Game socket={props.socket} gameReset={gameReset} roomId={roomId} rows={rows} cols={cols} mines={mines} />) }
+    </>
+    );
 }

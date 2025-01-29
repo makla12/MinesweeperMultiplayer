@@ -1,4 +1,4 @@
-export function EndScrean(props){
+export default function EndScrean(props){
     
     return(
         <div className="w-screen h-screen fixed top-0 left-0 flex justify-center items-center backdrop-blur-sm z-30">

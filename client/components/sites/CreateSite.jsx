@@ -1,8 +1,7 @@
 import { useState, useEffect} from "react";
-
-import { Create } from "./create";
-import { WaitingRoom } from "./waitingRoom";
-import { Game } from "./game";
+import CreateGame from "@/components/CreateGame";
+import WaitingRoom from "@/componentsWaitingRoom";
+import Game from "@/components/Game";
 
 export default function CreateSite(props) {
 	const [gameStart,setGameStart] = useState(0);
@@ -62,15 +61,15 @@ export default function CreateSite(props) {
 
     
 
-  	return (
-    	<>
-			{gameStart == 0 ? 
-            <Create socket={props.socket} /> 
-            : 
-            (gameStart == 1 ? 
-            <WaitingRoom  socket={props.socket} roomId={roomId} playerCount={playerCount} host={true} /> 
-            : 
-            <Game socket={props.socket} gameReset={gameReset} roomId={roomId} rows={rows} cols={cols} mines={mines} />) }
-    	</>
-  	);
+    return (
+    <>
+        {gameStart == 0 ? 
+        <CreateGame socket={props.socket} /> 
+        : 
+        (gameStart == 1 ? 
+        <WaitingRoom  socket={props.socket} roomId={roomId} playerCount={playerCount} host={true} /> 
+        : 
+        <Game socket={props.socket} gameReset={gameReset} roomId={roomId} rows={rows} cols={cols} mines={mines} />) }
+    </>
+    );
 }

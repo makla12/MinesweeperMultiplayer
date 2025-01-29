@@ -1,13 +1,16 @@
+import { useState, useEffect, useRef } from "react";
 import { useSignal } from "@preact/signals-react";
-import { useState, useEffect } from "react";
 
-export function GameNav(props){
+export default function GameNav(props){
     const mines = useSignal(0);
-    const [time, setTime] = useState(0);
-    const [stopTime, setStopTime] = useState(false);
+    const time = useRef(0);
+    const stopTime = useRef(false);
+    const [timeState, setTimeState] = useState(0);
+
     const startTime = () => {
-        setTime(0);
-        setStopTime(false);
+        time.current = 0;
+        stopTime.current = false;
+        console.log("start");
     }
 
     const formatTime = (x) => {
@@ -19,7 +22,9 @@ export function GameNav(props){
 
     useEffect(()=>{
         const handleEndGame = ()=>{
-            setStopTime(true);
+            time.current = 0;
+            stopTime.current = true;
+            console.log("end");
         }
         props.socket.on("startGame",startTime);
         props.socket.on("endGame",handleEndGame);
@@ -54,12 +59,17 @@ export function GameNav(props){
     },[props.board])
 
     useEffect(()=>{
-        if(!stopTime){
-            setTimeout(()=>{
-                setTime(time+1);
-            },1000);
+        const inter = setInterval(()=>{
+            if(stopTime.current) return;
+
+            time.current++;
+            setTimeState(time.current);
+        },1000);
+
+        return () => {
+            clearInterval(inter);
         }
-    },[time])
+    },[]);
 
     useEffect(()=>{
         mines.value = props.minesStart;
@@ -69,7 +79,7 @@ export function GameNav(props){
         <div className="fixed top-0 left-0 w-screen h-20 bg-black text-white flex justify-evenly items-center text-xl z-20 select-none">
             <div></div>
             <div>{mines}</div>
-            <div>{formatTime(time)}</div>
+            <div>{formatTime(timeState)}</div>
         </div>
     )
 }
