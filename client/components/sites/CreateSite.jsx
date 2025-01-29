@@ -1,6 +1,6 @@
 import { useState, useEffect} from "react";
 import CreateGame from "@/components/CreateGame";
-import WaitingRoom from "@/componentsWaitingRoom";
+import WaitingRoom from "@/components/WaitingRoom";
 import Game from "@/components/Game";
 
 export default function CreateSite(props) {
