@@ -4,7 +4,7 @@ import GameNav from "./GameNav";
 import EndScrean from "./EndScrean";
 import Cell from "./Cell";
 
-export default function Game(props){    
+export default function Game({socket, roomId, cols, rows, gameReset, mines}){    
     const [board, setBoard] = useState([]);
     const [change, setChange] = useState(false);
     const [gameState, setGameState] = useState(0);
@@ -13,7 +13,7 @@ export default function Game(props){
     const handleGameReset = () => {
         setGameState(0);
         setGameWin(false);
-        props.socket.emit("startGame",props.roomId);
+        socket.emit("startGame",roomId);
     }
 
     const dig = (digs) => {
@@ -39,44 +39,44 @@ export default function Game(props){
             setGameState(1);
             setGameWin(value);
         }
-        props.socket.on("endGame", handleGameEnd);
+        socket.on("endGame", handleGameEnd);
     },[]);
 
     useEffect(()=>{
         setGameState(0);
         let newBoard = [];
-        for(let i = 0;i < props.rows;i++){
+        for(let i = 0;i < rows;i++){
             newBoard.push([]);
-            for(let j = 0;j < props.cols; j++){
+            for(let j = 0;j < cols; j++){
                 newBoard[i].push(signal({cleared:false, flaged:false,minesAround:0}))
             }
         }
         setBoard(newBoard);
         setChange(!change);
-    },[props.cols,props.rows,props.gameReset]);
+    },[cols,rows,gameReset]);
 
     useEffect(()=>{
-        props.socket.on("dig",dig);
-        props.socket.on("flag",flag);
+        socket.on("dig",dig);
+        socket.on("flag",flag);
 
         return () => {
-            props.socket.off("dig",dig);
-            props.socket.off("flag",flag);
+            socket.off("dig",dig);
+            socket.off("flag",flag);
         }
     },[change])
 
     return(
         <>
         
-        <GameNav socket={props.socket} minesStart={props.mines} gameReset={props.gameReset} board={board} />
+        <GameNav socket={socket} minesStart={mines} gameReset={gameReset} board={board} />
         <div className="min-w-screen min-h-screen w-fit h-fit flex justify-center items-center p-24 mx-auto touch-manipulation">
             <div className="flex flex-col">
                 {board.map((row,index1)=>(
                     <div key={index1} className="flex">
                         {row.map((sig,index2)=>(
                             <Cell key={`${index1} ${index2}`} 
-                                handleDig={()=>{ props.socket.emit("dig", props.roomId, index1, index2) }} 
-                                handleFlag={(e)=>{ e.preventDefault(); props.socket.emit("flag", props.roomId, index1, index2) }} 
+                                handleDig={()=>{ socket.emit("dig", roomId, index1, index2) }} 
+                                handleFlag={(e)=>{ e.preventDefault(); socket.emit("flag", roomId, index1, index2) }} 
                                 sig={sig} 
                             />
                         ))}
