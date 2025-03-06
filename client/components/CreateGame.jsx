@@ -1,6 +1,6 @@
 import { useState, useEffect} from "react";
-export function Create(props){
-    const socket = props.socket;
+
+export default function CreateGame({socket}){
     const [dif, setDif] = useState(1);
 
     const handleClick = (dif) => {

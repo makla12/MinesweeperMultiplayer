@@ -1,17 +1,16 @@
 import { useState, useEffect} from "react";
-
-import { Create } from "./create";
-import { WaitingRoom } from "./waitingRoom";
-import { Game } from "./game";
+import CreateGame from "@/components/CreateGame";
+import WaitingRoom from "@/components/WaitingRoom";
+import Game from "@/components/Game";
 
 export default function CreateSite(props) {
-	const [gameStart,setGameStart] = useState(0);
-    const [roomId,setRoomId] = useState(0);
-    const [playerCount,setPlayerCount] = useState(1);
+	const [gameStart, setGameStart] = useState(0);
+    const [roomId, setRoomId] = useState(0);
+    const [playerCount, setPlayerCount] = useState(1);
     const [gameReset, setGameReset] = useState(false);
-    const [rows,setRows] = useState(0);
-    const [cols,setCols] = useState(0);
-    const [mines,setMines] = useState(0);
+    const [rows, setRows] = useState(0);
+    const [cols, setCols] = useState(0);
+    const [mines, setMines] = useState(0);
     const socket = props.socket;
 
     useEffect(()=>{
@@ -62,15 +61,15 @@ export default function CreateSite(props) {
 
     
 
-  	return (
-    	<>
-			{gameStart == 0 ? 
-            <Create socket={props.socket} /> 
-            : 
-            (gameStart == 1 ? 
-            <WaitingRoom  socket={props.socket} roomId={roomId} playerCount={playerCount} host={true} /> 
-            : 
-            <Game socket={props.socket} gameReset={gameReset} roomId={roomId} rows={rows} cols={cols} mines={mines} />) }
-    	</>
-  	);
+    return (
+    <>
+        {gameStart == 0 ? 
+        <CreateGame socket={props.socket} /> 
+        : 
+        (gameStart == 1 ? 
+        <WaitingRoom  socket={props.socket} roomId={roomId} playerCount={playerCount} host={true} /> 
+        : 
+        <Game socket={props.socket} gameReset={gameReset} roomId={roomId} rows={rows} cols={cols} mines={mines} />) }
+    </>
+    );
 }

@@ -2,9 +2,8 @@ import { useSignals } from "@preact/signals-react/runtime";
 import Image from "next/image";
 import flagImg from "@/public/flag.png"
 
-export function Cell({handleDig, handleFlag, sig}){
+export default function Cell({handleDig, handleFlag, sig}){
     useSignals();
-    console.log(sig);
     return(
         <div onClick={ handleDig } 
             onContextMenu={ handleFlag }
