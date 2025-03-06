@@ -1,25 +1,23 @@
-import { Cell, Board, Game, CorsOptions } from './types';
-import { Server as HttpServer } from 'http';
 import { Server } from 'socket.io';
 
 class SocketIOServer {
-    private generateRoomId() : number {
+    generateRoomId = () => {
         let random;
         let randomFound = true;
         while(randomFound){
             randomFound = false;
             random = Math.floor(Math.random() * 9999);
             for(let i = 0;i < this.games.length;i++){
-                if(this.games[i].room == random.toString()){
+                if(this.games[i].room == random){
                     randomFound = true;
                     break;
                 }
             }
         }
-        return random ? random : 0;
+        return random;
     }
 
-    private getIndexFromRoom(roomId:string) : number {
+    getIndexFromRoom(roomId) {
         let index = -1;
         for(let i = 0;i < this.games.length;i++){
             if(this.games[i].room == roomId){
@@ -30,7 +28,7 @@ class SocketIOServer {
         return index;
     }
 
-    private cellsAround(board:Board, x:number, y:number) : number[][] {
+    cellsAround(board,x,y) {
         const rows = board.length;
         const colums = board[0].length
         let cellsAr = [];
@@ -49,7 +47,7 @@ class SocketIOServer {
         return cellsAr;
     }
 
-    private calculateMinesAround(board:Board, x:number, y:number) : number {
+    calculateMinesAround(board,x,y) {
         let sum = 0;
         for(let value of this.cellsAround(board,x,y)){
             if(board[value[0]][value[1]].minesAround == -1) sum++;
@@ -57,9 +55,9 @@ class SocketIOServer {
         return sum;
     }
 
-    private generateBoard(rows:number, cols:number, mines:number, x:number, y:number) : Board {
-        let minesPos:Set<number> = new Set();
-        let random:number;
+    generateBoard(rows, cols, mines, x, y) {
+        let minesPos = new Set();
+        let random;
         for(let _ = 0;_ < mines;){
             random = Math.floor(Math.random() * rows * cols);
 
@@ -71,7 +69,7 @@ class SocketIOServer {
                 _++;
             }
         }
-        let board:Board = [];
+        let board = [];
         for(let i = 0;i < rows;i++){
             board.push([]);
             for(let j = 0;j < cols; j++){
@@ -89,28 +87,28 @@ class SocketIOServer {
         return board;
     }
 
-    private startGame(gameIndex:number) : void {
+    startGame(gameIndex) {
         const rows = this.games[gameIndex].rows;
         const cols = this.games[gameIndex].cols;
         const mines = this.games[gameIndex].mines;
-        this.games[gameIndex].board = [];
+        this.games[gameIndex].board = null;
         this.games[gameIndex].digCounter = rows * cols - mines;
         this.games[gameIndex].gameEnd = false;
         this.socketIOServer.to(this.games[gameIndex].room).emit("startGame");
     }
 
-    private flagsAround(board:Board, x:number, y:number) : number {
+    flagsAround(board, x, y) {
         const flags = this.cellsAround(board, x, y).filter(value => board[value[0]][value[1]].flaged);
         return flags.length;
     }
 
-    private unClearedCellsAround(board:Board, x:number, y:number) : number {
+    unClearedCellsAround(board, x, y) {
         const cells = this.cellsAround(board, x, y).filter(value => !board[value[0]][value[1]].cleared);
         return cells.length;
     }
 
-    private cellsToClear(gameIndex:number, x:number, y:number) : number[][] {
-        let cells:number[][] = [];
+    cellsToClear(gameIndex, x, y) {
+        let cells = [];
         const board = this.games[gameIndex].board;
         const value = this.games[gameIndex].board[x][y].minesAround;
         if(board[x][y].cleared || board[x][y].flaged){
@@ -132,19 +130,19 @@ class SocketIOServer {
         return cells;        
     }
 
-    private dig(gameIndex:number, x:number, y:number) : void {
-        if(this.games[gameIndex].board.length == 0){
+    dig(gameIndex, x, y) {
+        if(this.games[gameIndex].board == null){
             const rows = this.games[gameIndex].rows;
             const cols = this.games[gameIndex].cols;
             const mines = this.games[gameIndex].mines;
             this.games[gameIndex].board = this.generateBoard(rows, cols, mines, x, y);
         }
 
-        if(this.games[gameIndex].gameEnd || this.games[gameIndex].board[x][y].flaged) return;
+        if(this.games[gameIndex].gameEnd || this.games[gameIndex].board[x][y].flaged) return 0;
         const room = this.games[gameIndex].room;
         if(this.games[gameIndex].board[x][y].cleared){
             if(this.flagsAround(this.games[gameIndex].board, x, y) == this.games[gameIndex].board[x][y].minesAround){
-                let cells:number[][] = [];
+                let cells = [];
                 for(let i of this.cellsAround(this.games[gameIndex].board,x, y)){
                     cells = cells.concat(this.cellsToClear(gameIndex, i[0], i[1]));
                 }
@@ -171,7 +169,7 @@ class SocketIOServer {
                 }
                 this.socketIOServer.to(room).emit("flag", flags);
             }
-            return;
+            return 0;
         }
         
         let cells = this.cellsToClear(gameIndex, x, y);
@@ -181,36 +179,36 @@ class SocketIOServer {
         }
     }
 
-    private flag(gameIndex:number, x:number, y:number, manual:boolean) : void {
+    flag(gameIndex, x, y, manual) {
         const room = this.games[gameIndex].room;
         if(this.games[gameIndex].board[x][y].cleared){
-            return;
+            return 2;
         }
         if(!manual && this.games[gameIndex].board[x][y].flaged){
-            return;
+            return 1;
         }
         this.games[gameIndex].board[x][y].flaged = !this.games[gameIndex].board[x][y].flaged;
         this.socketIOServer.to(room).emit("flag", [[x, y]]);
-        return;
+        return 0;
     }
 
-    private games:Game[] = [];
-    public socketIOServer:Server;
 
-    constructor(httpServer:HttpServer, corsOptions:CorsOptions) {
+    constructor(httpServer, corsOptions){
         this.socketIOServer = new Server(httpServer, {cors:corsOptions});
+
+        this.games = [];
 
         this.socketIOServer.on("connect", (socket) => {
             socket.data.host = false;
 
-            socket.on("disconnecting",() => {
+            socket.on("disconnecting",()=>{
                 if(socket.rooms.size == 1){
-                    return;
+                    return 0;
                 }
                 if(socket.data.host){
                     const roomId = Array.from(socket.rooms)[1];
                     const index = this.getIndexFromRoom(roomId);
-                    if(index == -1) return;
+                    if(index == -1) return 0;
                     this.socketIOServer.to(roomId).emit("hostLeft");
                     this.socketIOServer.in(roomId).socketsLeave(roomId);
                     this.games.splice(index,1);
@@ -218,15 +216,15 @@ class SocketIOServer {
                 else{
                     const roomId = Array.from(socket.rooms)[1];
                     const index = this.getIndexFromRoom(roomId);
-                    if(index == -1) return;
+                    if(index == -1) return 0;
                     if(!this.games[index].gameStarted) this.games[index].players--;
                     this.socketIOServer.to(roomId).emit("playerDisconnected");
                 }
             });
 
-            socket.on("create",(cols:number, rows:number, mines:number) => {
-                if(cols * rows < mines) return;
-                let roomId = this.generateRoomId().toString();
+            socket.on("create",(cols,rows,mines)=>{
+                if(cols * rows < mines) return 0;
+                let roomId = this.generateRoomId();
                 this.games.push({
                     room:roomId,
                     rows:rows,
@@ -244,27 +242,27 @@ class SocketIOServer {
                 socket.emit("gameCreated", roomId, cols, rows, mines);
             });
 
-            socket.on("join",(roomId:string) => {
+            socket.on("join",(roomId) => {
                 const index = this.getIndexFromRoom(roomId);
-                if(index == -1) return;
-                if(this.games[index].players == this.games[index].maxPlayers) return;
+                if(index == -1) return 0;
+                if(this.games[index].players == this.games[index].maxPlayers) return 0;
                 this.games[index].players++;
                 this.socketIOServer.to(roomId).emit("playerJoined");
                 socket.join(roomId);
                 socket.emit("gameJoined", roomId, this.games[index].players, this.games[index].cols, this.games[index].rows, this.games[index].mines);
             });
 
-            socket.on("startGame",(roomId) => {
+            socket.on("startGame",(roomId)=>{
                 const gameIndex = this.getIndexFromRoom(roomId);
                 this.startGame(gameIndex);
             });
 
-            socket.on("dig", (roomId, x, y) => {
+            socket.on("dig", (roomId, x, y)=>{
                 const gameIndex = this.getIndexFromRoom(roomId);
                 this.dig(gameIndex, x, y);
             });
 
-            socket.on("flag", (roomId, x, y) => {
+            socket.on("flag", (roomId, x, y)=>{
                 const gameIndex = this.getIndexFromRoom(roomId);
                 this.flag(gameIndex, x, y, true);
             });
