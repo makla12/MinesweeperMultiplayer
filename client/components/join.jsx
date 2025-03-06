@@ -1,4 +1,4 @@
-export default function JoinGame(props){
+export function Join(props){
     const socket = props.socket;
     const join = () => {
         socket.emit("join",Number(document.getElementById("roomCode").value));

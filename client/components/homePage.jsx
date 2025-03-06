@@ -1,4 +1,4 @@
-export default function HomePage(){
+export function HomePage(){
 	return(
 		<div className="flex flex-col min-w-fit w-screen h-screen justify-center items-center gap-48">
 			<div className="flex justify-center items-center text-8xl font-bold">Mineseweeper</div>

@@ -1,9 +1,9 @@
 "use client";
 import { Manager } from "socket.io-client";
 import { useState, useEffect} from "react";
-import CreateSite from "@/components/sites/CreateSite";
+import CreateSite from "@/components/createSite";
 
-export default function Page() {
+export default function Home() {
 	const [socket,setSocket] = useState(undefined);
 
 	useEffect(()=>{
@@ -11,9 +11,9 @@ export default function Page() {
 		setSocket(manager.socket("/"));
 	},[]);
 	
-	return (
-	<>
-		{socket != undefined ? <CreateSite socket={socket} /> :<div className="w-screen h-screen flex items-center justify-center">Loading...</div>}
-	</>
-	);
+  	return (
+    	<>
+			{socket != undefined ? <CreateSite socket={socket} /> :<div className="w-screen h-screen flex items-center justify-center">Loading...</div>}
+    	</>
+  	);
 }
